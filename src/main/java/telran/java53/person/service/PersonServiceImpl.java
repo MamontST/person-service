@@ -1,5 +1,6 @@
 package telran.java53.person.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -47,44 +48,45 @@ public class PersonServiceImpl implements PersonService {
 		return modelMapper.map(person, PersonDto.class);
 	}
 
+	@Transactional
 	@Override
 	public PersonDto updatePersonName(Integer id, String name) {
 		Person person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
 		person.setName(name);
-		personRepository.save(person);
+//		personRepository.save(person);
 		return modelMapper.map(person, PersonDto.class);
 	}
 
+	@Transactional
 	@Override
 	public PersonDto updatePersonAddress(Integer id, AddressDto addressDto) {
 		Person person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
 		Address addressPerson = modelMapper.map(addressDto, Address.class);
 		person.setAddress(addressPerson);
-		personRepository.save(person);
+//		personRepository.save(person);
 		return modelMapper.map(person, PersonDto.class);
 	}
 
 	@Override
 	public PersonDto[] findPersonsByCity(String city) {
-		List<Person> persons = personRepository.findByAddressCity(city);
-		return persons.stream()
-				.map(person -> modelMapper.map(person, PersonDto.class))
-				.toArray(PersonDto[]::new);
+		return personRepository.findByAddressCity(city).stream()
+		.map(p -> modelMapper.map(p, PersonDto.class))
+		.toArray(PersonDto[]::new);
 	}
 
 	@Override
 	public PersonDto[] findPersonsByName(String name) {
-		List<Person> persons = personRepository.findPersonsByName(name);
-		return persons.stream()
-				.map(person -> modelMapper.map(person, PersonDto.class))
+		return personRepository.findPersonsByName(name).stream()
+				.map(p -> modelMapper.map(p, PersonDto.class))
 				.toArray(PersonDto[]::new);
 	}
 
 	@Override
 	public PersonDto[] findPersonsBetweenAge(Integer minAge, Integer maxAge) {
-		List<Person> persons = personRepository.findPersonsBetweenAge(minAge, maxAge);
-		return persons.stream()
-				.map(person -> modelMapper.map(person, PersonDto.class))
+		LocalDate from = LocalDate.now().minusYears(maxAge);
+		LocalDate to = LocalDate.now().minusYears(minAge);
+		return personRepository.findByBirthDateBetween(from, to).stream()
+				.map(p -> modelMapper.map(p, PersonDto.class))
 				.toArray(PersonDto[]::new);
 	}
 
