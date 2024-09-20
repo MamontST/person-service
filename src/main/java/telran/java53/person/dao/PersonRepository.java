@@ -27,5 +27,6 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	
 	@Query("SELECT c FROM Child c")
 	List<Child> findAllChildren();
+	List<Child> findChildrenBy();
 
 }
